@@ -141,7 +141,7 @@ body {
 .itinerary-container {
   max-width: 1600px;
   margin: auto;
-  padding: 16px;
+  padding: 36px;
   border: 1px solid #333;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
