@@ -1,9 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import '../../styles/authForms.css';
 import { Context } from "../store/appContext";
 import { useNavigate } from 'react-router-dom'
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
+
 
 const SignUpForm = ({openLoginModal}) => {
 
@@ -13,12 +12,9 @@ const SignUpForm = ({openLoginModal}) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    //show password
     const [showPassword, setShowPassword] = useState(false);
-    //login logic
     const toLogin = useNavigate();
     
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -91,17 +87,8 @@ const SignUpForm = ({openLoginModal}) => {
                 </div>
             </div>
             <button type="submit" className="submit-button">Submit</button>
-            <GoogleLogin
-                onSuccess={credentialResponse => {
-                    const decoded = jwtDecode (credentialResponse?.credential);
-                    console.log(decoded);
-                    console.log(decoded.email)
-                }}
-                onError={() => {
-                    console.log('Login Failed');
-                }}
-            />
             
+
         </form>
     );
 };

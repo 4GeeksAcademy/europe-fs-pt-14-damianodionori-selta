@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import getState from "./flux.js";
+import { jwtDecode } from "jwt-decode";
+
 
 // Don't change, here is where we initialize our context, by default it's just going to be null.
 export const Context = React.createContext(null);
@@ -7,6 +9,8 @@ export const Context = React.createContext(null);
 // This function injects the global store to any view/component where you want to use it, we will inject the context to layout.js, you can see it here:
 // https://github.com/4GeeksAcademy/react-hello-webapp/blob/master/src/js/layout.js#L35
 const injectContext = PassedComponent => {
+	
+
 	const StoreWrapper = props => {
 		//this will be passed as the contenxt value
 		const [state, setState] = useState(
@@ -20,8 +24,21 @@ const injectContext = PassedComponent => {
 					})
 			})
 		);
+		const [ user, setUser ] = useState({});
+		
+		
 
 		useEffect(() => {
+			 google.accounts.id.initialize ({
+				client_id: "533568438503-75kgn3gkshmbrlnhsg2ithfchvc10ebi.apps.googleusercontent.com",
+				callback: state.actions.handleCallbackResponse //state.actions.handle
+			});
+		
+			google.accounts.id.renderButton (
+				document.getElementById("signInDiv"),
+				{ theme:"outline", size: "large"}
+			) 
+			
 
 			//create function to check if user is still logged in
 			/**

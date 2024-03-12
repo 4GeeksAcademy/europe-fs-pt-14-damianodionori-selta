@@ -15,6 +15,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
   let [searchParams, setSearchParams] = useSearchParams();
   const { store, actions } = useContext(Context);
+  
 
   useEffect(() => {
     if (searchParams.get("openLogin"))
@@ -175,9 +176,11 @@ export const Navbar = () => {
                     Sign Up
                   </Link>
                 </li>
+                <li className="nav-item"><button id="signInDiv">Sign in with Google</button></li>
               </ul>
             </div>
           </div>
+         
         </div>
         <Login show={isLoginOpen} handleClose={closeLoginModal} />
       </nav>

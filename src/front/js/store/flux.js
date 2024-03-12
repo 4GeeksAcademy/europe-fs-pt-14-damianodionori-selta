@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode";
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -31,6 +33,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					if (!response.ok) {
 						const errorData = await response.json().catch(() => ({}));
 						console.error('Signup failed:', errorData);
+						console.log(response)
 						setStore({ message: errorData.error || 'Signup failed. Please try again.' });
 					} else {
 						const data = await response.json().catch(() => ({}));
@@ -42,44 +45,78 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}
 				} catch (error) {
 					console.error('Error during signup:', error);
-					setStore({ message: 'Signup failed. Please try again.' });
+					setStore({ message: 'Signup failed and caught. Please try again.' });
 				}
 			},
-		
-			/* handleGoogleSignup : async (firstName, email, ) => {
-			
-				if (password !== confirmPassword) {
-					setErrorMessage('The passwords do not match');
-					return;
-				}
-		
+
+			checkEmail: async (email, name) => {
 				try {
-					const response = await actions.signup({
-						first_name: firstName,
-						email: email,
-						password: password,
-						confirm_password: confirmPassword,
-					});
-			
-					console.log("Full Response:", response); // Log the full response
-		
-					if (response) {
-						alert('The user was created successfully')
-						toLogin ("/?openLogin=true")
-		
+					const response = await fetch(process.env.BACKEND_URL + "/api/users/" + email);
+					const data = await response.json();
+					
+					if (data.message == 'true') {
+						// Email exists, call the login function here
+						await getActions().handleGoogleLogin(email);
+						console.log("Email exists:", data);
 						
-						//redirect user to Home Page and open login modal useLocation()
-						console.log("SignUp successful");
 					} else {
-						const errorText = response?.message || 'An unknown error occurred';
-						setErrorMessage(`SignUp failed: ${errorText}`);
-						console.error("SignUp failed:", errorText);
-					}
+						// Email does not exist, call the signup function here
+						console.log("Email does not exist:", data);
+						// Call the signup function here
+						// Then call the login function with just the email to create the token.
+						 await signup({
+							first_name: name,
+							email: email,
+						});
+						await handleGoogleLogin(email);
+					
+						return data;}
 				} catch (error) {
-					setErrorMessage('An error occurred during SignUp', error);
-					console.error("Error during SignUp:", error);
+					console.error('Error checking if email exists:', error);
 				}
-			}, */
+			},
+			 //put in flux
+			 handleCallbackResponse: async (response) => {
+				console.log("Encoded JWT ID token: " + response.credential);
+				var userObject = jwtDecode(response.credential);
+				console.log(userObject);
+				//here we use the object returned to sign up or login the user.
+				getActions().checkEmail(userObject.email, userObject.name);
+			},
+
+			handleGoogleLogin: async (email) => {
+				try {
+				
+				  const response = await fetch(process.env.BACKEND_URL + "/api/GoogleLogin" , {
+					method: "POST",
+					headers: {
+					  "Content-Type": "application/json",
+					},
+					body: JSON.stringify({ email }),
+				  });
+				  
+				  if (!response.ok) {
+					throw new Error('Login failed. Please check your email and password.');
+				  }
+				  
+				  const data = await response.json();
+					  
+				  localStorage.setItem("accessToken", data.access_token)
+			  
+				  getActions().setAccessToken(data.access_token);
+				  getActions().setIsLoggedIn(true);
+					
+			  
+				} catch (error) {
+				  console.error('Error during login:', error);
+				  alert(error.message); // Display alert for error message
+				}
+			  },
+			
+				
+	
+			 
+				
 
 
 			setIsLoggedIn: (isLoggedIn) => {
